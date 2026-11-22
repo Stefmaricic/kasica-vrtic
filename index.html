@@ -260,10 +260,10 @@
   .loading-note{font-size:.85rem;color:var(--ink-soft);padding:2rem 0;text-align:center;}
   footer.foot{margin-top:2.2rem;font-size:.76rem;color:var(--ink-soft);text-align:center;}
   .palette-picker{
-    position:fixed;left:14px;top:50%;transform:translateY(-50%);
-    display:flex;flex-direction:column;gap:.55rem;z-index:50;
+    position:fixed;right:14px;top:14px;
+    display:flex;flex-direction:row;gap:.55rem;z-index:80;
     background:var(--paper-raised);border:1px solid var(--line);
-    border-radius:999px;padding:.6rem .45rem;box-shadow:0 8px 24px rgba(0,0,0,.14);
+    border-radius:999px;padding:.5rem .6rem;box-shadow:0 8px 24px rgba(0,0,0,.14);
   }
   .palette-dot{
     width:28px;height:28px;border-radius:50%;border:2px solid transparent;
@@ -274,8 +274,8 @@
   .palette-dot:hover{filter:brightness(1.08);}
   .palette-dot:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
   @media (max-width:560px){
-    .palette-picker{left:6px;padding:.5rem .35rem;gap:.45rem;}
-    .palette-dot{width:24px;height:24px;}
+    .palette-picker{right:8px;top:8px;padding:.4rem .5rem;gap:.4rem;}
+    .palette-dot{width:22px;height:22px;}
   }
   .home-hero{display:flex;flex-direction:column;gap:1.25rem;margin-bottom:.5rem;}
   .home-hero-art img{width:100%;height:auto;max-height:240px;object-fit:cover;display:block;border-radius:20px;box-shadow:0 14px 34px rgba(0,0,0,.14);}
@@ -295,7 +295,7 @@
 <body>
 <div id="root"><p class="loading-note">Učitavanje…</p></div>
 <div id="toast" class="toast" aria-live="polite"></div>
-<div id="palette-picker" class="palette-picker" role="group" aria-label="Izaberi boju teme" style="display:none"></div>
+<div id="palette-picker" class="palette-picker" role="group" aria-label="Izaberi boju teme"></div>
 <!-- Supabase client library, then your own project's URL/key (config.js — edit that one file, never this one). -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
@@ -956,8 +956,6 @@
       modals = copyModalText ? renderCopyModal() : (pendingConfirm ? renderConfirmModal() : (viewingReceiptId ? renderModal(currentGroup) : ''));
     }
     root.innerHTML = body + modals;
-    var pickerEl = document.getElementById('palette-picker');
-    if (pickerEl) pickerEl.style.display = currentGroup ? '' : 'none';
     if (copyModalText) {
       var ta = document.querySelector('.copy-textarea');
       if (ta) { ta.focus(); ta.select(); }
