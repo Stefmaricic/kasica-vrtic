@@ -277,12 +277,25 @@
     .palette-picker{left:6px;padding:.5rem .35rem;gap:.45rem;}
     .palette-dot{width:24px;height:24px;}
   }
+  .home-hero{display:flex;gap:2rem;align-items:center;margin-bottom:.5rem;}
+  .home-hero-art{flex:1 1 320px;max-width:400px;}
+  .home-hero-art img{width:100%;height:auto;display:block;border-radius:20px;box-shadow:0 14px 34px rgba(0,0,0,.14);}
+  .home-hero-main{flex:1 1 380px;min-width:280px;}
+  .home-hero-main .hero{text-align:right;}
+  .home-hero-main .home-sub{margin-left:auto;}
+  .home-hero-main .card{text-align:left;}
+  @media (max-width:760px){
+    .home-hero{flex-direction:column;align-items:stretch;}
+    .home-hero-art{max-width:100%;}
+    .home-hero-main .hero{text-align:left;}
+    .home-hero-main .home-sub{margin-left:0;}
+  }
 </style>
 </head>
 <body>
 <div id="root"><p class="loading-note">Učitavanje…</p></div>
 <div id="toast" class="toast" aria-live="polite"></div>
-<div id="palette-picker" class="palette-picker" role="group" aria-label="Izaberi boju teme"></div>
+<div id="palette-picker" class="palette-picker" role="group" aria-label="Izaberi boju teme" style="display:none"></div>
 <!-- Supabase client library, then your own project's URL/key (config.js — edit that one file, never this one). -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
@@ -704,6 +717,9 @@
       return '<option value="' + escapeHtml(g.id) + '">' + escapeHtml(g.name) + (g.hasPin ? ' 🔒' : '') + '</option>';
     }).join('');
     return '<div class="wrap">' +
+      '<div class="home-hero">' +
+      '<div class="home-hero-art"><img src="image.png" alt="Kasica za vrtić" loading="lazy"></div>' +
+      '<div class="home-hero-main">' +
       '<header class="hero">' +
       '<p class="eyebrow">Kasica za vrtić</p>' +
       '<h1>Izaberi grupu</h1>' +
@@ -718,6 +734,8 @@
         '</form>'
       ) : '<p class="card-hint">Još nema nijedne grupe — napravi prvu ispod.</p>') +
       '</section>' +
+      '</div>' +
+      '</div>' +
       '<section class="card">' +
       '<div class="card-head"><h2>Napravi novu grupu</h2></div>' +
       '<p class="card-hint">PIN je opcion. Ako ga postaviš, podaci te grupe se ne mogu ni videti ni menjati bez njega — proveru radi server, ne samo stranica.</p>' +
@@ -938,6 +956,8 @@
       modals = copyModalText ? renderCopyModal() : (pendingConfirm ? renderConfirmModal() : (viewingReceiptId ? renderModal(currentGroup) : ''));
     }
     root.innerHTML = body + modals;
+    var pickerEl = document.getElementById('palette-picker');
+    if (pickerEl) pickerEl.style.display = currentGroup ? '' : 'none';
     if (copyModalText) {
       var ta = document.querySelector('.copy-textarea');
       if (ta) { ta.focus(); ta.select(); }
