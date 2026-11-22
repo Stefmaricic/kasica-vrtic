@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kasica za vrtić</title>
+<base target="_top">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1F4EC;
+    --paper-raised:#FFFFFF;
+    --ink:#23301F;
+    --ink-soft:#5C6B52;
+    --moss:#3F7A4C;
+    --moss-deep:#2E5C39;
+    --clay:#C1613D;
+    --sun:#C99423;
+    --line:#DCE3D1;
+    --danger:#AE4436;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#141C15;
+      --paper-raised:#1C2620;
+      --ink:#E8ECDD;
+      --ink-soft:#A9B79C;
+      --moss:#6FB57D;
+      --moss-deep:#8FCB9B;
+      --clay:#E2895F;
+      --sun:#E7C15A;
+      --line:#2C3A2B;
+      --danger:#E17462;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#141C15;
+    --paper-raised:#1C2620;
+    --ink:#E8ECDD;
+    --ink-soft:#A9B79C;
+    --moss:#6FB57D;
+    --moss-deep:#8FCB9B;
+    --clay:#E2895F;
+    --sun:#E7C15A;
+    --line:#2C3A2B;
+    --danger:#E17462;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Karla',ui-sans-serif,system-ui,sans-serif;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important;}
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:2.75rem 1.4rem 5rem;}
+  .eyebrow{
+    text-transform:uppercase;letter-spacing:.12em;font-size:.7rem;
+    color:var(--ink-soft);font-weight:700;margin:0 0 .5rem;
+  }
+  h1{
+    font-family:'Fraunces',Georgia,serif;font-weight:600;
+    font-size:clamp(1.9rem,4vw,2.55rem);margin:0 0 1.5rem;
+    letter-spacing:-0.01em;text-wrap:balance;
+  }
+  h2{
+    font-family:'Fraunces',Georgia,serif;font-weight:600;
+    font-size:1.2rem;margin:0;
+  }
+  .banner-readonly{
+    background:color-mix(in srgb, var(--danger) 14%, transparent);
+    border:1px solid var(--danger);color:var(--danger);
+    padding:.65rem .95rem;border-radius:11px;font-size:.85rem;margin-bottom:1.1rem;
+  }
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:.8rem;}
+  .stat{
+    background:var(--paper-raised);border:1px solid var(--line);
+    border-radius:14px;padding:1rem 1.1rem;
+  }
+  .stat-label{
+    display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--ink-soft);margin-bottom:.4rem;font-weight:700;
+  }
+  .stat-value{
+    font-family:'JetBrains Mono',ui-monospace,monospace;
+    font-variant-numeric:tabular-nums;font-size:1.18rem;font-weight:600;
+  }
+  .stat-hero{
+    background:linear-gradient(155deg,var(--moss),var(--moss-deep));
+    border-color:transparent;color:#fff;
+  }
+  .stat-hero .stat-label{color:rgba(255,255,255,.82);}
+  .stat-hero .stat-value{font-family:'Fraunces',Georgia,serif;font-size:1.85rem;font-weight:600;}
+  .stat-hero--neg{background:linear-gradient(155deg,var(--danger),#7A2C22);}
+  .stat--warn .stat-value{color:var(--danger);}
+  .save-status{
+    min-height:1.1rem;font-size:.75rem;color:var(--ink-soft);margin:.9rem 0 0;
+  }
+  .card{
+    background:var(--paper-raised);border:1px solid var(--line);
+    border-radius:18px;padding:1.5rem 1.5rem 1.75rem;margin-top:1.5rem;
+  }
+  .card-head{display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.1rem;flex-wrap:wrap;}
+  .count-badge{
+    background:var(--line);color:var(--ink-soft);font-size:.7rem;font-weight:700;
+    padding:.15rem .55rem;border-radius:999px;font-family:'JetBrains Mono',monospace;
+  }
+  .card-hint{font-size:.82rem;color:var(--ink-soft);margin:-0.6rem 0 1.1rem;}
+  .table-scroll{overflow-x:auto;border-radius:10px;}
+  table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:480px;}
+  th{
+    text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--ink-soft);padding:.5rem .6rem;border-bottom:1px solid var(--line);font-weight:700;
+  }
+  td{padding:.55rem .6rem;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  td.num,th.num{
+    font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;
+    text-align:right;white-space:nowrap;
+  }
+  .muted{color:var(--ink-soft);}
+  .empty-row td{text-align:center;color:var(--ink-soft);font-style:italic;padding:1.3rem;}
+  .thumb-btn{
+    padding:0;border:none;background:none;cursor:pointer;border-radius:8px;
+    display:block;line-height:0;
+  }
+  .thumb-btn:focus-visible{outline:2px solid var(--moss);outline-offset:2px;}
+  .thumb{
+    width:38px;height:38px;object-fit:cover;border-radius:8px;border:1px solid var(--line);
+  }
+  .no-receipt{color:var(--ink-soft);}
+  .del-btn{
+    background:none;border:none;color:var(--danger);cursor:pointer;font-size:1rem;
+    line-height:1;padding:.25rem .35rem;border-radius:6px;
+  }
+  .del-btn:hover{background:color-mix(in srgb, var(--danger) 14%, transparent);}
+  .del-btn:focus-visible{outline:2px solid var(--danger);outline-offset:1px;}
+  .realize-btn{
+    background:color-mix(in srgb, var(--sun) 18%, transparent);
+    border:1px solid var(--sun);color:var(--ink);border-radius:8px;
+    padding:.3rem .65rem;font-size:.76rem;font-weight:700;cursor:pointer;
+    font-family:inherit;margin-right:.35rem;
+  }
+  .realize-btn:hover{background:color-mix(in srgb, var(--sun) 30%, transparent);}
+  .row-actions{display:flex;align-items:center;justify-content:flex-end;gap:.15rem;white-space:nowrap;}
+  .add-form{
+    display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.2rem;padding-top:1.2rem;
+    border-top:1px dashed var(--line);align-items:flex-end;
+  }
+  .field{display:flex;flex-direction:column;gap:.3rem;flex:1 1 130px;min-width:110px;}
+  .field.narrow{flex:0 1 150px;}
+  .field label{
+    font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--ink-soft);font-weight:700;
+  }
+  input[type=text],input[type=number],input[type=date],input[type=password],select{
+    font:inherit;padding:.5rem .6rem;border:1px solid var(--line);border-radius:9px;
+    background:var(--paper);color:var(--ink);width:100%;
+  }
+  input:focus-visible,select:focus-visible{outline:2px solid var(--moss);outline-offset:1px;}
+  .file-field{flex:1 1 200px;}
+  .file-row{display:flex;align-items:center;gap:.5rem;}
+  .file-btn{
+    font:inherit;font-size:.82rem;padding:.5rem .7rem;border:1px solid var(--line);
+    border-radius:9px;background:var(--paper);color:var(--ink);cursor:pointer;
+  }
+  input[type=file]{display:none;}
+  .file-name{font-size:.78rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;}
+  button[type=submit]{
+    background:var(--moss);color:#fff;border:none;padding:.62rem 1.15rem;border-radius:9px;
+    font-weight:700;cursor:pointer;font-family:inherit;font-size:.9rem;
+  }
+  button[type=submit]:hover{background:var(--moss-deep);}
+  button[disabled]{opacity:.6;cursor:not-allowed;}
+  button:focus-visible{outline:2px solid var(--moss);outline-offset:1px;}
+  .toast{
+    position:fixed;bottom:1.4rem;left:50%;
+    transform:translateX(-50%) translateY(16px);
+    background:var(--ink);color:var(--paper);padding:.7rem 1.15rem;border-radius:10px;
+    font-size:.85rem;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;
+    z-index:60;max-width:90vw;box-shadow:0 12px 30px rgba(0,0,0,.25);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast-err{background:var(--danger);}
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(10,14,10,.72);display:flex;
+    align-items:center;justify-content:center;padding:2.2rem;z-index:70;
+  }
+  .modal-img{max-width:100%;max-height:85vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.45);display:block;}
+  .modal-close{
+    position:fixed;top:1.3rem;right:1.4rem;background:rgba(255,255,255,.16);
+    color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:1.3rem;
+    cursor:pointer;line-height:1;
+  }
+  .modal-close:hover{background:rgba(255,255,255,.28);}
+  .confirm-box{
+    background:var(--paper-raised);border-radius:16px;padding:1.5rem 1.5rem 1.3rem;
+    max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35);
+  }
+  .confirm-msg{margin:0 0 1.2rem;font-size:.95rem;color:var(--ink);}
+  .confirm-actions{display:flex;justify-content:flex-end;gap:.6rem;}
+  .confirm-btn{
+    font:inherit;font-size:.86rem;font-weight:700;padding:.55rem 1rem;border-radius:9px;
+    cursor:pointer;border:1px solid var(--line);
+  }
+  .confirm-btn-no{background:var(--paper);color:var(--ink);}
+  .confirm-btn-no:hover{background:var(--line);}
+  .confirm-btn-yes{background:var(--danger);color:#fff;border-color:transparent;}
+  .confirm-btn-yes:hover{filter:brightness(1.08);}
+  .confirm-btn-yes--moss{background:var(--moss);}
+  .section-total{margin-left:.5rem;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-weight:700;color:var(--moss-deep);font-size:.95rem;}
+  .collapse-btn{
+    margin-left:auto;background:none;border:1px solid var(--line);color:var(--ink-soft);
+    border-radius:8px;padding:.3rem .7rem;font-size:.75rem;font-weight:700;cursor:pointer;
+    font-family:inherit;white-space:nowrap;
+  }
+  .collapse-btn:hover{background:var(--line);color:var(--ink);}
+  .event-group{margin-top:1.3rem;padding-top:1.2rem;border-top:1px solid var(--line);}
+  .event-group:first-of-type{margin-top:.2rem;padding-top:0;border-top:none;}
+  .event-group-head{display:flex;align-items:center;flex-wrap:wrap;gap:.55rem;margin-bottom:.7rem;}
+  .event-group-head h3{font-family:'Fraunces',Georgia,serif;font-size:1rem;font-weight:600;margin:0;}
+  .event-sum{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;font-weight:700;color:var(--moss-deep);margin-left:auto;}
+  .copy-btn,.event-toggle-btn{background:var(--paper);border:1px solid var(--moss);color:var(--moss-deep);border-radius:8px;padding:.35rem .7rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .copy-btn:hover,.event-toggle-btn:hover{background:color-mix(in srgb, var(--moss) 14%, transparent);}
+  .event-del-btn{background:var(--paper);border:1px solid var(--danger);color:var(--danger);border-radius:8px;padding:.35rem .7rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  .event-del-btn:hover{background:color-mix(in srgb, var(--danger) 14%, transparent);}
+  .copy-box{max-width:440px;}
+  .copy-textarea{width:100%;min-height:160px;margin:0 0 1rem;padding:.6rem .7rem;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.78rem;resize:vertical;}
+  .group-meta{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:1.3rem;}
+  .link-btn{
+    background:none;border:1px solid var(--line);color:var(--ink-soft);border-radius:8px;
+    padding:.4rem .75rem;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;
+  }
+  .link-btn:hover{background:var(--line);color:var(--ink);}
+  .pin-manage-form{margin-top:.9rem;padding-top:.9rem;border-top:1px dashed var(--line);}
+  .home-sub{margin:0 0 1.6rem;max-width:62ch;}
+  .loading-note{font-size:.85rem;color:var(--ink-soft);padding:2rem 0;text-align:center;}
+  footer.foot{margin-top:2.2rem;font-size:.76rem;color:var(--ink-soft);text-align:center;}
+</style>
+</head>
+<body>
+<div id="root"><p class="loading-note">Učitavanje…</p></div>
+<div id="toast" class="toast" aria-live="polite"></div>
+<!-- Supabase client library, then your own project's URL/key (config.js — edit that one file, never this one). -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+(function () {
+  if (window.KASICA_CONFIG && window.KASICA_CONFIG.supabaseUrl && window.KASICA_CONFIG.supabaseAnonKey) {
+    window.supabaseClient = window.supabase.createClient(window.KASICA_CONFIG.supabaseUrl, window.KASICA_CONFIG.supabaseAnonKey);
+  }
+})();
+(function () {
+  'use strict';
+
+  var LS_PINS_KEY = 'kasica-vrtic-pins-v1';
+  var LS_COLLAPSE_KEY = 'kasica-vrtic-collapsed-v1';
+
+  var groupsList = null;      // [{id,name,hasPin}]
+  var currentGroupId = null;
+  var currentGroup = null;    // full group object once loaded/unlocked
+  var pinsMap = {};           // { groupId: pinValue } remembered per browser
+  var collapsedMap = {};      // { groupId: { sectionOrEventKey: bool } }
+  var pinError = false;
+  var groupNeedsPin = false; // only true after a CONFIRMED wrong_pin response -- never during loading
+  var managingPin = false;
+  var busy = false;
+
+  var viewingReceiptId = null;
+  var pendingConfirm = null;
+  var copyModalText = null;
+  var toastTimer = null;
+
+  // --------------------------------------------------------------- helpers
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function fmtMoney(n) {
+    n = Number(n) || 0;
+    return Math.round(n).toLocaleString('sr-RS') + ' RSD';
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    var parts = String(iso).split('-');
+    if (parts.length !== 3) return escapeHtml(iso);
+    return parts[2] + '.' + parts[1] + '.' + parts[0] + '.';
+  }
+
+  function todayISO() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+
+  function byDateDesc(a, b) { return (b.date || '').localeCompare(a.date || ''); }
+
+  function pluralUplata(n) {
+    var mod10 = n % 10, mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return 'uplata';
+    if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return 'uplate';
+    return 'uplata';
+  }
+
+  function groupTicketsByEvent(group) {
+    var map = {}, order = [];
+    group.tickets.forEach(function (t) {
+      var key = t.event || 'Bez naziva';
+      if (!map[key]) { map[key] = []; order.push(key); }
+      map[key].push(t);
+    });
+    order.sort(function (a, b) {
+      var da = map[a].reduce(function (m, x) { return (x.date || '') > m ? x.date : m; }, '');
+      var db = map[b].reduce(function (m, x) { return (x.date || '') > m ? x.date : m; }, '');
+      return db.localeCompare(da);
+    });
+    return order.map(function (key) { return { event: key, items: map[key].slice().sort(byDateDesc) }; });
+  }
+
+  function buildEventListText(evGroup) {
+    var items = evGroup.items.slice().sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); });
+    var lines = [];
+    lines.push('Karte za „' + evGroup.event + '“ -- uplatili su:');
+    items.forEach(function (t, i) {
+      lines.push((i + 1) + '. ' + t.name + ' -- ' + fmtMoney(t.amount) + (t.comment ? ' (' + t.comment + ')' : ''));
+    });
+    var sum = items.reduce(function (s, x) { return s + (Number(x.amount) || 0); }, 0);
+    lines.push('');
+    lines.push('Ukupno: ' + fmtMoney(sum) + ' (' + items.length + ' ' + pluralUplata(items.length) + ')');
+    return lines.join('\n');
+  }
+
+  function legacyCopy(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        showToast('Lista je kopirana.');
+      }, function () {
+        if (legacyCopy(text)) { showToast('Lista je kopirana.'); } else { copyModalText = text; render(); }
+      });
+    } else if (legacyCopy(text)) {
+      showToast('Lista je kopirana.');
+    } else {
+      copyModalText = text;
+      render();
+    }
+  }
+
+  function readAndCompressImage(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onerror = function () { reject(new Error('read failed')); };
+      reader.onload = function () {
+        var img = new Image();
+        img.onerror = function () { reject(new Error('decode failed')); };
+        img.onload = function () {
+          var maxDim = 1000;
+          var w = img.width, h = img.height;
+          var scale = Math.min(1, maxDim / Math.max(w, h));
+          var cw = Math.max(1, Math.round(w * scale));
+          var ch = Math.max(1, Math.round(h * scale));
+          var canvas = document.createElement('canvas');
+          canvas.width = cw; canvas.height = ch;
+          var ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, cw, ch);
+          ctx.drawImage(img, 0, 0, cw, ch);
+          try { resolve(canvas.toDataURL('image/jpeg', 0.72)); } catch (e) { reject(e); }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function showToast(msg, type) {
+    var el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'toast show' + (type === 'err' ? ' toast-err' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.className = 'toast'; }, 2800);
+  }
+
+  // ------------------------------------------------------- server bridge
+  //
+  // Every function below is a Postgres RPC function defined in
+  // supabase/schema.sql, where every pin check actually happens -- this
+  // bridge just maps the same call shape the rest of this file already
+  // uses (gsRun('addDonation', groupId, pin, name, amount, ...)) onto
+  // supabase-js's rpc(name, {named: params}) call shape.
+
+  var RPC_MAP = {
+    getGroupsList: { fn: 'get_groups_list', params: [] },
+    getGroupData: { fn: 'get_group_data', params: ['p_group_id', 'p_pin'] },
+    createGroup: { fn: 'create_group', params: ['p_name', 'p_pin'] },
+    setGroupPin: { fn: 'set_group_pin', params: ['p_group_id', 'p_current_pin', 'p_new_pin'] },
+    addDonation: { fn: 'add_donation', params: ['p_group_id', 'p_pin', 'p_name', 'p_amount', 'p_date', 'p_note'] },
+    deleteDonation: { fn: 'delete_donation', params: ['p_group_id', 'p_pin', 'p_id'] },
+    addExpense: { fn: 'add_expense', params: ['p_group_id', 'p_pin', 'p_desc', 'p_amount', 'p_date', 'p_category', 'p_receipt_url'] },
+    deleteExpense: { fn: 'delete_expense', params: ['p_group_id', 'p_pin', 'p_id'] },
+    addPlanned: { fn: 'add_planned', params: ['p_group_id', 'p_pin', 'p_desc', 'p_amount', 'p_when', 'p_note'] },
+    deletePlanned: { fn: 'delete_planned', params: ['p_group_id', 'p_pin', 'p_id'] },
+    realizePlanned: { fn: 'realize_planned', params: ['p_group_id', 'p_pin', 'p_id'] },
+    addTicket: { fn: 'add_ticket', params: ['p_group_id', 'p_pin', 'p_event', 'p_name', 'p_amount', 'p_date', 'p_comment'] },
+    deleteTicket: { fn: 'delete_ticket', params: ['p_group_id', 'p_pin', 'p_id'] },
+    deleteEventGroup: { fn: 'delete_event_group', params: ['p_group_id', 'p_pin', 'p_event'] }
+  };
+
+  function gsRun(fnName) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    var mapping = RPC_MAP[fnName];
+    return new Promise(function (resolve, reject) {
+      if (!window.supabaseClient) {
+        reject(new Error('Stranica nije povezana sa bazom (nedostaje config.js sa Supabase podacima).'));
+        return;
+      }
+      if (!mapping) {
+        reject(new Error('Nepoznata server funkcija: ' + fnName));
+        return;
+      }
+      var params = {};
+      mapping.params.forEach(function (paramName, i) { params[paramName] = args[i] === undefined ? null : args[i]; });
+      window.supabaseClient.rpc(mapping.fn, params).then(function (res) {
+        if (res.error) { reject(new Error(res.error.message || 'Greška na serveru')); return; }
+        resolve(res.data);
+      }, reject);
+    });
+  }
+
+  // One-time upload of a compressed receipt photo (already a data: URL at
+  // this point, built by readAndCompressImage below) to Supabase Storage,
+  // returning its public URL to save on the expense row. fetch() on a
+  // data: URL is a convenient built-in way to turn it into a Blob without
+  // hand-rolling base64 decoding in the browser.
+  function uploadReceiptToStorage(dataUrl) {
+    return fetch(dataUrl).then(function (r) { return r.blob(); }).then(function (blob) {
+      var fileName = 'racun-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.jpg';
+      return window.supabaseClient.storage.from('receipts').upload(fileName, blob, { contentType: 'image/jpeg' });
+    }).then(function (res) {
+      if (res.error) throw new Error(res.error.message || 'Upload nije uspeo');
+      var pub = window.supabaseClient.storage.from('receipts').getPublicUrl(res.data.path);
+      return pub.data.publicUrl;
+    });
+  }
+
+  // ------------------------------------------------------- local storage
+
+  function loadPins() {
+    try {
+      var saved = localStorage.getItem(LS_PINS_KEY);
+      if (saved) { var p = JSON.parse(saved); if (p && typeof p === 'object') pinsMap = p; }
+    } catch (e) { /* ignore */ }
+  }
+  function savePins() {
+    try { localStorage.setItem(LS_PINS_KEY, JSON.stringify(pinsMap)); } catch (e) { /* ignore */ }
+  }
+  function loadCollapsed() {
+    try {
+      var saved = localStorage.getItem(LS_COLLAPSE_KEY);
+      if (saved) { var p = JSON.parse(saved); if (p && typeof p === 'object') collapsedMap = p; }
+    } catch (e) { /* ignore */ }
+  }
+  function saveCollapsed() {
+    try { localStorage.setItem(LS_COLLAPSE_KEY, JSON.stringify(collapsedMap)); } catch (e) { /* ignore */ }
+  }
+  function isCollapsed(groupId, key) { return !!(collapsedMap[groupId] && collapsedMap[groupId][key]); }
+  function toggleSection(groupId, key) {
+    if (!collapsedMap[groupId]) collapsedMap[groupId] = {};
+    collapsedMap[groupId][key] = !collapsedMap[groupId][key];
+    saveCollapsed();
+    render();
+  }
+
+  // ------------------------------------------------------------- routing
+
+  function hashGroupId() {
+    var m = /#group=([^&]+)/.exec(location.hash);
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  function syncHash(push) {
+    var newHash = currentGroupId ? ('#group=' + encodeURIComponent(currentGroupId)) : '';
+    var target = location.pathname + location.search + newHash;
+    if (push) { try { history.pushState(null, '', target); } catch (e) {} }
+    else { try { history.replaceState(null, '', target); } catch (e) {} }
+  }
+  function resetTransientUI() {
+    viewingReceiptId = null; pendingConfirm = null; copyModalText = null;
+    pinError = false; groupNeedsPin = false; managingPin = false;
+  }
+  function goHome(push) {
+    currentGroupId = null; currentGroup = null;
+    resetTransientUI(); syncHash(push !== false);
+    loadGroupsList();
+  }
+  function goToGroup(id, push) {
+    currentGroupId = id; currentGroup = null;
+    resetTransientUI(); syncHash(push !== false);
+    loadActiveGroup();
+  }
+  window.addEventListener('popstate', function () {
+    currentGroupId = hashGroupId(); currentGroup = null;
+    resetTransientUI(); loadActiveGroup();
+  });
+
+  // --------------------------------------------------------- data loading
+
+  function loadGroupsList() {
+    render(); // show a loading state first
+    gsRun('getGroupsList').then(function (list) {
+      groupsList = list;
+      render();
+    }, function (err) {
+      groupsList = [];
+      showToast('Greška pri učitavanju liste grupa: ' + (err && err.message ? err.message : err), 'err');
+      render();
+    });
+  }
+
+  function loadActiveGroup() {
+    if (!currentGroupId) { loadGroupsList(); return; }
+    render(); // loading state
+    var pin = pinsMap[currentGroupId] || '';
+    gsRun('getGroupData', currentGroupId, pin).then(function (res) {
+      if (res.ok) {
+        currentGroup = res.group;
+        pinError = false;
+        groupNeedsPin = false;
+        render();
+      } else if (res.error === 'wrong_pin') {
+        currentGroup = null;
+        groupNeedsPin = true;
+        render();
+      } else {
+        currentGroup = null;
+        groupNeedsPin = false;
+        showToast('Grupa nije pronađena.', 'err');
+        goHome(true);
+      }
+    }, function (err) {
+      showToast('Greška pri učitavanju grupe: ' + (err && err.message ? err.message : err), 'err');
+      render();
+    });
+  }
+
+  function refreshFromResult(res) {
+    busy = false;
+    if (res && res.ok) {
+      currentGroup = res.group;
+      render();
+      return true;
+    }
+    render();
+    if (res && res.error === 'wrong_pin') {
+      showToast('Pogrešan PIN -- osveži stranicu.', 'err');
+    } else {
+      showToast('Nešto nije uspelo. Pokušaj ponovo.', 'err');
+    }
+    return false;
+  }
+
+  // ------------------------------------------------------------ rendering
+
+  function renderModal(group) {
+    var exp = group.expenses.find(function (e) { return e.id === viewingReceiptId; });
+    if (!exp || !exp.receiptUrl) return '';
+    return '<div class="modal-backdrop" data-action="close-modal">' +
+      '<button class="modal-close" data-action="close-modal" aria-label="Zatvori">✕</button>' +
+      '<img class="modal-img" src="' + exp.receiptUrl + '" alt="Račun za ' + escapeHtml(exp.desc) + '">' +
+      '</div>';
+  }
+
+  function renderConfirmModal() {
+    if (!pendingConfirm) return '';
+    return '<div class="modal-backdrop confirm-backdrop" data-action="confirm-no">' +
+      '<div class="confirm-box" role="alertdialog" aria-modal="true">' +
+      '<p class="confirm-msg">' + escapeHtml(pendingConfirm.message) + '</p>' +
+      '<div class="confirm-actions">' +
+      '<button type="button" class="confirm-btn confirm-btn-no" data-action="confirm-no">Otkaži</button>' +
+      '<button type="button" class="confirm-btn confirm-btn-yes' + (pendingConfirm.tone === 'moss' ? ' confirm-btn-yes--moss' : '') + '" data-action="confirm-yes">' + escapeHtml(pendingConfirm.confirmLabel || 'Potvrdi') + '</button>' +
+      '</div></div></div>';
+  }
+
+  function renderCopyModal() {
+    if (!copyModalText) return '';
+    return '<div class="modal-backdrop confirm-backdrop" data-action="close-copy-modal">' +
+      '<div class="confirm-box copy-box" role="alertdialog" aria-modal="true">' +
+      '<p class="confirm-msg">Automatsko kopiranje nije uspelo. Označite tekst ispod i kopirajte ga ručno (Ctrl+C / Cmd+C):</p>' +
+      '<textarea class="copy-textarea" readonly rows="8">' + escapeHtml(copyModalText) + '</textarea>' +
+      '<div class="confirm-actions">' +
+      '<button type="button" class="confirm-btn confirm-btn-no" data-action="close-copy-modal">Zatvori</button>' +
+      '<button type="button" class="confirm-btn confirm-btn-yes confirm-btn-yes--moss" data-action="copy-modal-retry">Pokušaj ponovo</button>' +
+      '</div></div></div>';
+  }
+
+  function askConfirm(message, confirmLabel, onYes, tone) {
+    pendingConfirm = { message: message, confirmLabel: confirmLabel, onYes: onYes, tone: tone || 'danger' };
+    render();
+  }
+
+  function renderHome() {
+    if (!groupsList) {
+      return '<div class="wrap"><p class="loading-note">Učitavanje…</p></div>';
+    }
+    var groups = groupsList.slice().sort(function (a, b) { return a.name.localeCompare(b.name, 'sr'); });
+    var options = groups.map(function (g) {
+      return '<option value="' + escapeHtml(g.id) + '">' + escapeHtml(g.name) + (g.hasPin ? ' 🔒' : '') + '</option>';
+    }).join('');
+    return '<div class="wrap">' +
+      '<header class="hero">' +
+      '<p class="eyebrow">Kasica za vrtić</p>' +
+      '<h1>Izaberi grupu</h1>' +
+      '<p class="card-hint home-sub">Svaka grupa ima svoju kasicu -- svoje donacije, troškove, planove i neplanirane troškove. Izaberi svoju grupu ili napravi novu ispod.</p>' +
+      '</header>' +
+      '<section class="card">' +
+      '<div class="card-head"><h2>Grupe</h2><span class="count-badge">' + groups.length + '</span></div>' +
+      (groups.length ? (
+        '<form class="add-form" data-form="open-group">' +
+        '<div class="field"><label for="g-select">Grupa</label><select id="g-select" name="groupId">' + options + '</select></div>' +
+        '<button type="submit">Otvori grupu</button>' +
+        '</form>'
+      ) : '<p class="card-hint">Još nema nijedne grupe -- napravi prvu ispod.</p>') +
+      '</section>' +
+      '<section class="card">' +
+      '<div class="card-head"><h2>Napravi novu grupu</h2></div>' +
+      '<p class="card-hint">PIN je opcion. Ako ga postaviš, podaci te grupe se ne mogu ni videti ni menjati bez njega -- proveru radi server, ne samo stranica.</p>' +
+      '<form class="add-form" data-form="create-group">' +
+      '<div class="field"><label for="ng-name">Naziv grupe</label><input id="ng-name" name="name" type="text" required maxlength="60" placeholder="npr. Grupa Leptirići"></div>' +
+      '<div class="field narrow"><label for="ng-pin">PIN (opciono)</label><input id="ng-pin" name="pin" type="text" maxlength="12" placeholder="npr. 2026"></div>' +
+      '<button type="submit"' + (busy ? ' disabled' : '') + '>Napravi grupu</button>' +
+      '</form>' +
+      '</section>' +
+      '<footer class="foot">Kasica za vrtić -- deljeni budžet i evidencija troškova po grupama.</footer>' +
+      '</div>';
+  }
+
+  function renderPinGate() {
+    var meta = (groupsList || []).find(function (g) { return g.id === currentGroupId; });
+    var name = meta ? meta.name : 'Grupa';
+    return '<div class="wrap">' +
+      '<header class="hero">' +
+      '<p class="eyebrow">Kasica za vrtić</p>' +
+      '<h1>' + escapeHtml(name) + '</h1>' +
+      '</header>' +
+      '<section class="card">' +
+      '<p class="card-hint">Ova grupa je zaštićena PIN-om. Unesi PIN da nastaviš.</p>' +
+      (pinError ? '<div class="banner-readonly">Pogrešan PIN. Pokušaj ponovo.</div>' : '') +
+      '<form class="add-form" data-form="unlock-group">' +
+      '<div class="field narrow"><label for="pin-input">PIN</label><input id="pin-input" name="pin" type="password" inputmode="numeric" autocomplete="off" required></div>' +
+      '<button type="submit"' + (busy ? ' disabled' : '') + '>Otvori</button>' +
+      '</form>' +
+      '<p style="margin-top:1rem"><button type="button" class="link-btn" data-action="go-home">← Sve grupe</button></p>' +
+      '</section>' +
+      '</div>';
+  }
+
+  function totals(group) {
+    var donationsTotal = group.donations.reduce(function (s, x) { return s + (Number(x.amount) || 0); }, 0);
+    var expensesTotal = group.expenses.reduce(function (s, x) { return s + (Number(x.amount) || 0); }, 0);
+    var plannedTotal = group.planned.reduce(function (s, x) { return s + (Number(x.amount) || 0); }, 0);
+    var remaining = donationsTotal - expensesTotal;
+    var projected = remaining - plannedTotal;
+    return { donationsTotal: donationsTotal, expensesTotal: expensesTotal, plannedTotal: plannedTotal, remaining: remaining, projected: projected };
+  }
+  function ticketsTotal(group) {
+    return group.tickets.reduce(function (s, x) { return s + (Number(x.amount) || 0); }, 0);
+  }
+
+  function renderGroupPage(group) {
+    var t = totals(group);
+    var donationsCollapsed = isCollapsed(group.id, 'donations');
+    var expensesCollapsed = isCollapsed(group.id, 'expenses');
+    var plannedCollapsed = isCollapsed(group.id, 'planned');
+    var ticketsCollapsed = isCollapsed(group.id, 'tickets');
+
+    var donationsRows = group.donations.length
+      ? group.donations.slice().sort(byDateDesc).map(function (d) {
+        return '<tr><td>' + escapeHtml(d.name) + '</td><td>' + fmtDate(d.date) + '</td><td class="muted">' + escapeHtml(d.note || '') + '</td>' +
+          '<td class="num">' + fmtMoney(d.amount) + '</td>' +
+          '<td class="row-actions"><button class="del-btn" data-action="del-donation" data-id="' + d.id + '" title="Obriši" aria-label="Obriši donaciju">✕</button></td></tr>';
+      }).join('')
+      : '<tr class="empty-row"><td colspan="5">Još nema unetih donacija.</td></tr>';
+
+    var expenseRows = group.expenses.length
+      ? group.expenses.slice().sort(byDateDesc).map(function (e) {
+        var receiptCell = e.receiptUrl
+          ? '<button class="thumb-btn" data-action="view-receipt" data-id="' + e.id + '" title="Prikaži račun"><img class="thumb" src="' + e.receiptUrl + '" alt="Račun za ' + escapeHtml(e.desc) + '"></button>'
+          : '<span class="no-receipt">—</span>';
+        return '<tr><td>' + fmtDate(e.date) + '</td><td>' + escapeHtml(e.desc) + '</td><td class="muted">' + escapeHtml(e.category || '') + '</td><td>' + receiptCell + '</td>' +
+          '<td class="num">' + fmtMoney(e.amount) + '</td>' +
+          '<td class="row-actions"><button class="del-btn" data-action="del-expense" data-id="' + e.id + '" title="Obriši" aria-label="Obriši trošak">✕</button></td></tr>';
+      }).join('')
+      : '<tr class="empty-row"><td colspan="6">Još nema unetih troškova.</td></tr>';
+
+    var plannedRows = group.planned.length
+      ? group.planned.slice().sort(function (a, b) { return (a.when || '').localeCompare(b.when || ''); }).map(function (p) {
+        return '<tr><td>' + escapeHtml(p.desc) + '</td><td class="muted">' + escapeHtml(p.when || '') + '</td><td class="muted">' + escapeHtml(p.note || '') + '</td>' +
+          '<td class="num">' + fmtMoney(p.amount) + '</td>' +
+          '<td class="row-actions"><button class="realize-btn" data-action="realize-planned" data-id="' + p.id + '">Realizuj</button><button class="del-btn" data-action="del-planned" data-id="' + p.id + '" title="Obriši" aria-label="Obriši plan">✕</button></td></tr>';
+      }).join('')
+      : '<tr class="empty-row"><td colspan="5">Još nema planiranih troškova.</td></tr>';
+
+    var uniqueEventNames = [];
+    group.tickets.forEach(function (tk) { if (tk.event && uniqueEventNames.indexOf(tk.event) === -1) uniqueEventNames.push(tk.event); });
+    var lastEventName = group.tickets.length ? group.tickets[group.tickets.length - 1].event : '';
+    var ticketGroups = groupTicketsByEvent(group);
+
+    var ticketsSectionHtml =
+      '<section class="card" id="section-tickets">' +
+      '<div class="card-head"><h2>Neplanirani troškovi</h2><span class="count-badge">' + group.tickets.length + '</span><span class="section-total">Ukupno: ' + fmtMoney(ticketsTotal(group)) + '</span>' +
+      '<button type="button" class="collapse-btn" data-action="toggle-section" data-section="tickets" aria-expanded="' + (!ticketsCollapsed) + '">' + (ticketsCollapsed ? 'Prikaži' : 'Sakrij') + '</button>' +
+      '</div>' +
+      (ticketsCollapsed ? '' : (
+        '<p class="card-hint">Ko je platio kartu za predstavu, grupisano po nazivu događaja. Klikni „Kopiraj listu“ da dobiješ spisak za slanje.</p>' +
+        (ticketGroups.length ? ticketGroups.map(function (g) {
+          var sum = g.items.reduce(function (s, x) { return s + (Number(x.amount) || 0); }, 0);
+          var eventCollapsed = isCollapsed(group.id, 'event:' + g.event);
+          var rows = g.items.map(function (tk) {
+            return '<tr><td>' + escapeHtml(tk.name) + '</td><td>' + fmtDate(tk.date) + '</td><td class="muted">' + escapeHtml(tk.comment || '') + '</td>' +
+              '<td class="num">' + fmtMoney(tk.amount) + '</td>' +
+              '<td class="row-actions"><button class="del-btn" data-action="del-ticket" data-id="' + tk.id + '" title="Obriši" aria-label="Obriši uplatu">✕</button></td></tr>';
+          }).join('');
+          return '<div class="event-group">' +
+            '<div class="event-group-head">' +
+            '<h3>' + escapeHtml(g.event) + '</h3>' +
+            '<span class="count-badge">' + g.items.length + ' ' + pluralUplata(g.items.length) + '</span>' +
+            '<span class="event-sum">' + fmtMoney(sum) + '</span>' +
+            '<button type="button" class="copy-btn" data-action="copy-event-list" data-event="' + escapeHtml(g.event) + '">Kopiraj listu</button>' +
+            '<button type="button" class="event-toggle-btn" data-action="toggle-event-group" data-event="' + escapeHtml(g.event) + '" aria-expanded="' + (!eventCollapsed) + '">' + (eventCollapsed ? 'Prikaži' : 'Sakrij') + '</button>' +
+            '<button type="button" class="event-del-btn" data-action="del-event-group" data-event="' + escapeHtml(g.event) + '">Obriši kategoriju</button>' +
+            '</div>' +
+            (eventCollapsed ? '' : '<div class="table-scroll"><table><thead><tr><th>Ime i prezime</th><th>Datum</th><th>Komentar</th><th class="num">Iznos</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>') +
+            '</div>';
+        }).join('') : '<p class="card-hint">Još nema unetih uplata za karte.</p>') +
+        '<form class="add-form" data-form="ticket">' +
+        '<div class="field"><label for="t-event">Naziv predstave / događaja</label><input id="t-event" name="event" type="text" required maxlength="80" placeholder="npr. Novogodišnja predstava" list="event-list" value="' + escapeHtml(lastEventName) + '"></div>' +
+        '<div class="field"><label for="t-name">Ime i prezime</label><input id="t-name" name="name" type="text" required maxlength="60" placeholder="npr. Marko Marković"></div>' +
+        '<div class="field narrow"><label for="t-amount">Iznos (RSD)</label><input id="t-amount" name="amount" type="number" required min="1" step="1" placeholder="500"></div>' +
+        '<div class="field narrow"><label for="t-date">Datum</label><input id="t-date" name="date" type="date" value="' + todayISO() + '"></div>' +
+        '<div class="field"><label for="t-comment">Komentar</label><input id="t-comment" name="comment" type="text" maxlength="120" placeholder="opciono"></div>' +
+        '<button type="submit"' + (busy ? ' disabled' : '') + '>Dodaj uplatu</button>' +
+        '</form>' +
+        '<datalist id="event-list">' + uniqueEventNames.map(function (n) { return '<option value="' + escapeHtml(n) + '">'; }).join('') + '</datalist>'
+      )) +
+      '</section>';
+
+    return '<div class="wrap">' +
+      '<div class="group-meta">' +
+      '<button type="button" class="link-btn" data-action="go-home">← Sve grupe</button>' +
+      '<button type="button" class="link-btn" data-action="toggle-pin-manage">' + (group.hasPin ? '🔒 Promeni / ukloni PIN' : '🔓 Postavi PIN') + '</button>' +
+      '</div>' +
+      '<header class="hero">' +
+      '<p class="eyebrow">Kasica za vrtić</p>' +
+      '<h1>' + escapeHtml(group.name) + '</h1>' +
+      (managingPin ? (
+        '<form class="add-form pin-manage-form" data-form="set-pin">' +
+        '<div class="field narrow"><label for="pin-current-input">Trenutni PIN</label><input id="pin-current-input" name="currentPin" type="text" maxlength="12" placeholder="prazno ako nema PIN"></div>' +
+        '<div class="field narrow"><label for="pin-new-input">Novi PIN</label><input id="pin-new-input" name="newPin" type="text" maxlength="12" placeholder="prazno = bez PIN-a"></div>' +
+        '<button type="submit"' + (busy ? ' disabled' : '') + '>Sačuvaj</button>' +
+        '<button type="button" class="confirm-btn confirm-btn-no" data-action="toggle-pin-manage">Otkaži</button>' +
+        '</form>'
+      ) : '') +
+      '<div class="stats">' +
+      '<div class="stat"><span class="stat-label">Ukupno donacija</span><span class="stat-value">' + fmtMoney(t.donationsTotal) + '</span></div>' +
+      '<div class="stat"><span class="stat-label">Ukupno potrošeno</span><span class="stat-value">' + fmtMoney(t.expensesTotal) + '</span></div>' +
+      '<div class="stat stat-hero' + (t.remaining < 0 ? ' stat-hero--neg' : '') + '"><span class="stat-label">Preostali budžet</span><span class="stat-value">' + fmtMoney(t.remaining) + '</span></div>' +
+      '<div class="stat"><span class="stat-label">Planirano unapred</span><span class="stat-value">' + fmtMoney(t.plannedTotal) + '</span></div>' +
+      '<div class="stat' + (t.projected < 0 ? ' stat--warn' : '') + '"><span class="stat-label">Stanje nakon planiranog</span><span class="stat-value">' + fmtMoney(t.projected) + '</span></div>' +
+      '</div>' +
+      '<p class="save-status">' + (busy ? 'Čuvanje…' : '') + '</p>' +
+      '</header>' +
+
+      '<section class="card" id="section-donations">' +
+      '<div class="card-head"><h2>Donacije</h2><span class="count-badge">' + group.donations.length + '</span>' +
+      '<button type="button" class="collapse-btn" data-action="toggle-section" data-section="donations" aria-expanded="' + (!donationsCollapsed) + '">' + (donationsCollapsed ? 'Prikaži' : 'Sakrij') + '</button>' +
+      '</div>' +
+      (donationsCollapsed ? '' : (
+        '<div class="table-scroll"><table><thead><tr><th>Ime</th><th>Datum</th><th>Napomena</th><th class="num">Iznos</th><th></th></tr></thead><tbody>' + donationsRows + '</tbody></table></div>' +
+        '<form class="add-form" data-form="donation">' +
+        '<div class="field"><label for="d-name">Ime</label><input id="d-name" name="name" type="text" required maxlength="60" placeholder="npr. Porodica Jovanović"></div>' +
+        '<div class="field narrow"><label for="d-amount">Iznos (RSD)</label><input id="d-amount" name="amount" type="number" required min="1" step="1" placeholder="2000"></div>' +
+        '<div class="field narrow"><label for="d-date">Datum</label><input id="d-date" name="date" type="date" value="' + todayISO() + '"></div>' +
+        '<div class="field"><label for="d-note">Napomena</label><input id="d-note" name="note" type="text" maxlength="120" placeholder="opciono"></div>' +
+        '<button type="submit"' + (busy ? ' disabled' : '') + '>Dodaj donaciju</button>' +
+        '</form>'
+      )) +
+      '</section>' +
+
+      '<section class="card" id="section-expenses">' +
+      '<div class="card-head"><h2>Troškovi</h2><span class="count-badge">' + group.expenses.length + '</span>' +
+      '<button type="button" class="collapse-btn" data-action="toggle-section" data-section="expenses" aria-expanded="' + (!expensesCollapsed) + '">' + (expensesCollapsed ? 'Prikaži' : 'Sakrij') + '</button>' +
+      '</div>' +
+      (expensesCollapsed ? '' : (
+        '<div class="table-scroll"><table><thead><tr><th>Datum</th><th>Opis</th><th>Kategorija</th><th>Račun</th><th class="num">Iznos</th><th></th></tr></thead><tbody>' + expenseRows + '</tbody></table></div>' +
+        '<form class="add-form" data-form="expense">' +
+        '<div class="field"><label for="e-desc">Opis</label><input id="e-desc" name="desc" type="text" required maxlength="80" placeholder="npr. Vodene boje"></div>' +
+        '<div class="field narrow"><label for="e-amount">Iznos (RSD)</label><input id="e-amount" name="amount" type="number" required min="1" step="1" placeholder="1500"></div>' +
+        '<div class="field narrow"><label for="e-date">Datum</label><input id="e-date" name="date" type="date" value="' + todayISO() + '"></div>' +
+        '<div class="field narrow"><label for="e-cat">Kategorija</label><input id="e-cat" name="category" type="text" maxlength="40" placeholder="opciono"></div>' +
+        '<div class="field file-field"><label for="e-file">Slika računa</label><div class="file-row"><button type="button" class="file-btn" data-action="pick-file">Izaberi sliku</button><span class="file-name"></span><input id="e-file" name="receiptFile" type="file" accept="image/*"></div></div>' +
+        '<button type="submit"' + (busy ? ' disabled' : '') + '>Dodaj trošak</button>' +
+        '</form>'
+      )) +
+      '</section>' +
+
+      '<section class="card" id="section-planned">' +
+      '<div class="card-head"><h2>Planirani budući troškovi</h2><span class="count-badge">' + group.planned.length + '</span>' +
+      '<button type="button" class="collapse-btn" data-action="toggle-section" data-section="planned" aria-expanded="' + (!plannedCollapsed) + '">' + (plannedCollapsed ? 'Prikaži' : 'Sakrij') + '</button>' +
+      '</div>' +
+      (plannedCollapsed ? '' : (
+        '<p class="card-hint">Stvari koje očekujete da ćete platiti, a još nisu plaćene. Kad se plate, klikni „Realizuj“ da se prebace u troškove.</p>' +
+        '<div class="table-scroll"><table><thead><tr><th>Opis</th><th>Kada</th><th>Napomena</th><th class="num">Procena</th><th></th></tr></thead><tbody>' + plannedRows + '</tbody></table></div>' +
+        '<form class="add-form" data-form="planned">' +
+        '<div class="field"><label for="p-desc">Opis</label><input id="p-desc" name="desc" type="text" required maxlength="80" placeholder="npr. Novogodišnja predstava"></div>' +
+        '<div class="field narrow"><label for="p-amount">Procena (RSD)</label><input id="p-amount" name="amount" type="number" required min="1" step="1" placeholder="5000"></div>' +
+        '<div class="field narrow"><label for="p-when">Kada</label><input id="p-when" name="when" type="text" maxlength="40" placeholder="npr. decembar"></div>' +
+        '<div class="field"><label for="p-note">Napomena</label><input id="p-note" name="note" type="text" maxlength="120" placeholder="opciono"></div>' +
+        '<button type="submit"' + (busy ? ' disabled' : '') + '>Dodaj plan</button>' +
+        '</form>'
+      )) +
+      '</section>' +
+
+      ticketsSectionHtml +
+
+      '<footer class="foot">Kasica za vrtić -- deljeni budžet i evidencija troškova.</footer>' +
+      '</div>';
+  }
+
+  function render() {
+    var root = document.getElementById('root');
+    if (!root) return;
+    var body, modals = '';
+    if (!currentGroupId) {
+      body = renderHome();
+    } else if (!currentGroup && groupNeedsPin) {
+      body = renderPinGate();
+    } else if (!currentGroup) {
+      body = '<div class="wrap"><p class="loading-note">Učitavanje…</p></div>';
+    } else {
+      body = renderGroupPage(currentGroup);
+      modals = copyModalText ? renderCopyModal() : (pendingConfirm ? renderConfirmModal() : (viewingReceiptId ? renderModal(currentGroup) : ''));
+    }
+    root.innerHTML = body + modals;
+    if (copyModalText) {
+      var ta = document.querySelector('.copy-textarea');
+      if (ta) { ta.focus(); ta.select(); }
+    }
+  }
+
+  // ----------------------------------------------------------------- events
+
+  function onClick(e) {
+    if (e.target.classList && e.target.classList.contains('modal-img')) return;
+    if (e.target.closest && e.target.closest('.confirm-box') && !e.target.closest('button[data-action]')) return;
+    var actionEl = e.target.closest ? e.target.closest('[data-action]') : null;
+    if (!actionEl) return;
+    var action = actionEl.dataset.action;
+    var id = actionEl.dataset.id;
+
+    if (action === 'go-home') { goHome(); return; }
+    if (action === 'pick-file') {
+      var input = actionEl.parentElement.querySelector('input[type=file]');
+      if (input) input.click();
+      return;
+    }
+    if (action === 'view-receipt') { viewingReceiptId = id; render(); return; }
+    if (action === 'close-modal') { viewingReceiptId = null; render(); return; }
+    if (action === 'confirm-no') { pendingConfirm = null; render(); return; }
+    if (action === 'confirm-yes') {
+      var fn = pendingConfirm && pendingConfirm.onYes;
+      pendingConfirm = null;
+      if (fn) fn();
+      return;
+    }
+    if (action === 'copy-event-list') {
+      var evName = actionEl.dataset.event;
+      var grp = currentGroup && groupTicketsByEvent(currentGroup).find(function (g) { return g.event === evName; });
+      if (grp) copyText(buildEventListText(grp));
+      return;
+    }
+    if (action === 'close-copy-modal') { copyModalText = null; render(); return; }
+    if (action === 'copy-modal-retry') {
+      var ta2 = document.querySelector('.copy-textarea');
+      var ok2 = ta2 ? legacyCopy(ta2.value) : false;
+      if (ok2) { copyModalText = null; showToast('Lista je kopirana.'); render(); }
+      else { if (ta2) { ta2.focus(); ta2.select(); } showToast('Kopiranje i dalje ne uspeva -- probajte ručno (Ctrl+C).', 'err'); }
+      return;
+    }
+    if (action === 'toggle-pin-manage') { managingPin = !managingPin; render(); return; }
+    if (action === 'toggle-section') {
+      if (currentGroup) toggleSection(currentGroup.id, actionEl.dataset.section);
+      return;
+    }
+    if (action === 'toggle-event-group') {
+      if (currentGroup) toggleSection(currentGroup.id, 'event:' + actionEl.dataset.event);
+      return;
+    }
+
+    if (busy || !currentGroup) return;
+    var pin = pinsMap[currentGroup.id] || '';
+
+    if (action === 'del-donation') {
+      askConfirm('Obrisati ovu donaciju?', 'Obriši', function () {
+        busy = true; render();
+        gsRun('deleteDonation', currentGroup.id, pin, id).then(refreshFromResult, onServerError);
+      });
+    } else if (action === 'del-expense') {
+      askConfirm('Obrisati ovaj trošak?', 'Obriši', function () {
+        busy = true; render();
+        gsRun('deleteExpense', currentGroup.id, pin, id).then(refreshFromResult, onServerError);
+      });
+    } else if (action === 'del-planned') {
+      askConfirm('Obrisati ovu stavku plana?', 'Obriši', function () {
+        busy = true; render();
+        gsRun('deletePlanned', currentGroup.id, pin, id).then(refreshFromResult, onServerError);
+      });
+    } else if (action === 'del-ticket') {
+      askConfirm('Obrisati ovu uplatu?', 'Obriši', function () {
+        busy = true; render();
+        gsRun('deleteTicket', currentGroup.id, pin, id).then(refreshFromResult, onServerError);
+      });
+    } else if (action === 'del-event-group') {
+      var delEventName = actionEl.dataset.event;
+      var delCount = currentGroup.tickets.filter(function (x) { return x.event === delEventName; }).length;
+      askConfirm('Obrisati celu kategoriju „' + delEventName + '“ i svih ' + delCount + ' ' + pluralUplata(delCount) + ' u njoj? Ovo se ne može poništiti.', 'Obriši kategoriju', function () {
+        busy = true; render();
+        gsRun('deleteEventGroup', currentGroup.id, pin, delEventName).then(refreshFromResult, onServerError);
+      });
+    } else if (action === 'realize-planned') {
+      var p = currentGroup.planned.find(function (x) { return x.id === id; });
+      if (p) {
+        askConfirm('Prebaciti „' + p.desc + '“ u stvarne troškove (iznos ' + fmtMoney(p.amount) + ')?', 'Realizuj', function () {
+          busy = true; render();
+          gsRun('realizePlanned', currentGroup.id, pin, id).then(refreshFromResult, onServerError);
+        }, 'moss');
+      }
+    }
+  }
+
+  function onServerError(err) {
+    busy = false; render();
+    showToast('Greška: ' + (err && err.message ? err.message : err), 'err');
+  }
+
+  function onChange(e) {
+    if (e.target && e.target.type === 'file') {
+      var span = e.target.parentElement.querySelector('.file-name');
+      if (span) span.textContent = e.target.files && e.target.files[0] ? e.target.files[0].name : '';
+    }
+  }
+
+  function onSubmit(e) {
+    e.preventDefault();
+    if (busy) return;
+    var form = e.target;
+    var kind = form.dataset.form;
+    var fd = new FormData(form);
+
+    if (kind === 'open-group') {
+      var gid = String(fd.get('groupId') || '');
+      if (gid) goToGroup(gid);
+      return;
+    }
+
+    if (kind === 'unlock-group') {
+      var entered = String(fd.get('pin') || '');
+      busy = true; render();
+      gsRun('getGroupData', currentGroupId, entered).then(function (res) {
+        busy = false;
+        if (res.ok) {
+          pinsMap[currentGroupId] = entered;
+          savePins();
+          currentGroup = res.group;
+          pinError = false;
+        } else {
+          pinError = true;
+        }
+        render();
+      }, onServerError);
+      return;
+    }
+
+    if (kind === 'create-group') {
+      var name = String(fd.get('name') || '').trim();
+      var newPin = String(fd.get('pin') || '').trim();
+      if (!name) { showToast('Unesite naziv grupe.', 'err'); return; }
+      busy = true; render();
+      gsRun('createGroup', name, newPin).then(function (res) {
+        busy = false;
+        if (res.ok) {
+          if (newPin) { pinsMap[res.groupId] = newPin; savePins(); }
+          groupsList = null; // force refresh next time home renders
+          goToGroup(res.groupId);
+        } else {
+          render();
+          showToast('Nije uspelo pravljenje grupe.', 'err');
+        }
+      }, onServerError);
+      return;
+    }
+
+    if (kind === 'set-pin') {
+      if (!currentGroup) return;
+      var curPin = String(fd.get('currentPin') || '').trim();
+      var nextPin = String(fd.get('newPin') || '').trim();
+      busy = true; render();
+      gsRun('setGroupPin', currentGroup.id, curPin, nextPin).then(function (res) {
+        if (res.ok) {
+          pinsMap[currentGroup.id] = nextPin;
+          savePins();
+          managingPin = false;
+          showToast(nextPin ? 'PIN sačuvan.' : 'PIN uklonjen.');
+          refreshFromResult(res);
+        } else {
+          busy = false;
+          showToast(res.error === 'wrong_pin' ? 'Pogrešan trenutni PIN.' : 'Nešto nije uspelo.', 'err');
+          render();
+        }
+      }, onServerError);
+      return;
+    }
+
+    if (!currentGroup) return;
+    var pin = pinsMap[currentGroup.id] || '';
+
+    if (kind === 'donation') {
+      var dname = String(fd.get('name') || '').trim();
+      var damount = Number(fd.get('amount'));
+      if (!dname || !damount || damount <= 0) { showToast('Unesite ime i iznos.', 'err'); return; }
+      busy = true; render();
+      gsRun('addDonation', currentGroup.id, pin, dname, damount, fd.get('date') || todayISO(), String(fd.get('note') || '').trim())
+        .then(function (res) { if (res.ok) form.reset(); refreshFromResult(res); }, onServerError);
+      return;
+    }
+
+    if (kind === 'planned') {
+      var pdesc = String(fd.get('desc') || '').trim();
+      var pamount = Number(fd.get('amount'));
+      if (!pdesc || !pamount || pamount <= 0) { showToast('Unesite opis i procenjeni iznos.', 'err'); return; }
+      busy = true; render();
+      gsRun('addPlanned', currentGroup.id, pin, pdesc, pamount, String(fd.get('when') || '').trim(), String(fd.get('note') || '').trim())
+        .then(function (res) { if (res.ok) form.reset(); refreshFromResult(res); }, onServerError);
+      return;
+    }
+
+    if (kind === 'ticket') {
+      var tEvent = String(fd.get('event') || '').trim();
+      var tName = String(fd.get('name') || '').trim();
+      var tAmount = Number(fd.get('amount'));
+      if (!tEvent || !tName || !tAmount || tAmount <= 0) { showToast('Unesite naziv, ime i iznos.', 'err'); return; }
+      busy = true; render();
+      gsRun('addTicket', currentGroup.id, pin, tEvent, tName, tAmount, fd.get('date') || todayISO(), String(fd.get('comment') || '').trim())
+        .then(function (res) { if (res.ok) form.reset(); refreshFromResult(res); }, onServerError);
+      return;
+    }
+
+    if (kind === 'expense') {
+      var edesc = String(fd.get('desc') || '').trim();
+      var eamount = Number(fd.get('amount'));
+      if (!edesc || !eamount || eamount <= 0) { showToast('Unesite opis i iznos.', 'err'); return; }
+      var fileInput = form.querySelector('input[type=file]');
+      var file = fileInput && fileInput.files && fileInput.files[0];
+      var date = fd.get('date') || todayISO();
+      var category = String(fd.get('category') || '').trim();
+      var finish = function (receiptDataUrl) {
+        busy = true; render();
+        var uploadPromise = receiptDataUrl ? uploadReceiptToStorage(receiptDataUrl) : Promise.resolve('');
+        uploadPromise.then(function (receiptUrl) {
+          return gsRun('addExpense', currentGroup.id, pin, edesc, eamount, date, category, receiptUrl || '');
+        }, function (uploadErr) {
+          showToast('Slika nije mogla da se otpremi, trošak je dodat bez nje: ' + uploadErr.message, 'err');
+          return gsRun('addExpense', currentGroup.id, pin, edesc, eamount, date, category, '');
+        }).then(function (res) { if (res.ok) form.reset(); refreshFromResult(res); }, onServerError);
+      };
+      if (file) {
+        readAndCompressImage(file).then(finish, function () {
+          showToast('Slika nije mogla da se učita, trošak je dodat bez nje.', 'err');
+          finish(null);
+        });
+      } else {
+        finish(null);
+      }
+      return;
+    }
+  }
+
+  function init() {
+    loadPins();
+    loadCollapsed();
+    currentGroupId = hashGroupId();
+    document.getElementById('root').addEventListener('click', onClick);
+    document.getElementById('root').addEventListener('submit', onSubmit);
+    document.getElementById('root').addEventListener('change', onChange);
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (copyModalText) { copyModalText = null; render(); return; }
+      if (pendingConfirm) { pendingConfirm = null; render(); return; }
+      if (viewingReceiptId) { viewingReceiptId = null; render(); }
+    });
+    loadActiveGroup();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
