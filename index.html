@@ -47,6 +47,22 @@
     --line:#2C3A2B;
     --danger:#E17462;
   }
+  /* Color themes (accent only — neutrals stay the same). "mahovina" is the
+     default and needs no override since it matches the base :root values. */
+  :root[data-palette="reka"]{ --moss:#2E6DA3; --moss-deep:#20506F; }
+  :root[data-palette="jesen"]{ --moss:#AA431F; --moss-deep:#7A2E15; }
+  :root[data-palette="suncokret"]{ --moss:#7A5D10; --moss-deep:#5A4409; }
+  :root[data-palette="lavanda"]{ --moss:#6B4A9E; --moss-deep:#4C3474; }
+  @media (prefers-color-scheme: dark){
+    :root[data-palette="reka"]:not([data-theme="light"]){ --moss:#6DB3DE; --moss-deep:#8FC9EC; }
+    :root[data-palette="jesen"]:not([data-theme="light"]){ --moss:#E2895F; --moss-deep:#EDA87C; }
+    :root[data-palette="suncokret"]:not([data-theme="light"]){ --moss:#D9B94E; --moss-deep:#EAD080; }
+    :root[data-palette="lavanda"]:not([data-theme="light"]){ --moss:#B79BE0; --moss-deep:#CBB6EB; }
+  }
+  :root[data-theme="dark"][data-palette="reka"]{ --moss:#6DB3DE; --moss-deep:#8FC9EC; }
+  :root[data-theme="dark"][data-palette="jesen"]{ --moss:#E2895F; --moss-deep:#EDA87C; }
+  :root[data-theme="dark"][data-palette="suncokret"]{ --moss:#D9B94E; --moss-deep:#EAD080; }
+  :root[data-theme="dark"][data-palette="lavanda"]{ --moss:#B79BE0; --moss-deep:#CBB6EB; }
   *{box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
   body{
@@ -243,11 +259,30 @@
   .home-sub{margin:0 0 1.6rem;max-width:62ch;}
   .loading-note{font-size:.85rem;color:var(--ink-soft);padding:2rem 0;text-align:center;}
   footer.foot{margin-top:2.2rem;font-size:.76rem;color:var(--ink-soft);text-align:center;}
+  .palette-picker{
+    position:fixed;left:14px;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:.55rem;z-index:50;
+    background:var(--paper-raised);border:1px solid var(--line);
+    border-radius:999px;padding:.6rem .45rem;box-shadow:0 8px 24px rgba(0,0,0,.14);
+  }
+  .palette-dot{
+    width:28px;height:28px;border-radius:50%;border:2px solid transparent;
+    cursor:pointer;padding:0;display:block;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);
+  }
+  .palette-dot[aria-pressed="true"]{border-color:var(--ink);}
+  .palette-dot:hover{filter:brightness(1.08);}
+  .palette-dot:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+  @media (max-width:560px){
+    .palette-picker{left:6px;padding:.5rem .35rem;gap:.45rem;}
+    .palette-dot{width:24px;height:24px;}
+  }
 </style>
 </head>
 <body>
 <div id="root"><p class="loading-note">Učitavanje…</p></div>
 <div id="toast" class="toast" aria-live="polite"></div>
+<div id="palette-picker" class="palette-picker" role="group" aria-label="Izaberi boju teme"></div>
 <!-- Supabase client library, then your own project's URL/key (config.js — edit that one file, never this one). -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
@@ -262,6 +297,14 @@
 
   var LS_PINS_KEY = 'kasica-vrtic-pins-v1';
   var LS_COLLAPSE_KEY = 'kasica-vrtic-collapsed-v1';
+  var LS_PALETTE_KEY = 'kasica-vrtic-palette-v1';
+  var PALETTES = [
+    { key: 'mahovina', name: 'Mahovina', color: '#3F7A4C' },
+    { key: 'reka', name: 'Reka', color: '#2E6DA3' },
+    { key: 'jesen', name: 'Jesen', color: '#AA431F' },
+    { key: 'suncokret', name: 'Suncokret', color: '#7A5D10' },
+    { key: 'lavanda', name: 'Lavanda', color: '#6B4A9E' }
+  ];
 
   var groupsList = null;      // [{id,name,hasPin}]
   var currentGroupId = null;
@@ -269,7 +312,7 @@
   var pinsMap = {};           // { groupId: pinValue } remembered per browser
   var collapsedMap = {};      // { groupId: { sectionOrEventKey: bool } }
   var pinError = false;
-  var groupNeedsPin = false; // only true after a CONFIRMED wrong_pin response -- never during loading
+  var groupNeedsPin = false; // only true after a CONFIRMED wrong_pin response — never during loading
   var managingPin = false;
   var busy = false;
 
@@ -332,9 +375,9 @@
   function buildEventListText(evGroup) {
     var items = evGroup.items.slice().sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); });
     var lines = [];
-    lines.push('Karte za „' + evGroup.event + '“ -- uplatili su:');
+    lines.push('Karte za „' + evGroup.event + '“ — uplatili su:');
     items.forEach(function (t, i) {
-      lines.push((i + 1) + '. ' + t.name + ' -- ' + fmtMoney(t.amount) + (t.comment ? ' (' + t.comment + ')' : ''));
+      lines.push((i + 1) + '. ' + t.name + ' — ' + fmtMoney(t.amount) + (t.comment ? ' (' + t.comment + ')' : ''));
     });
     var sum = items.reduce(function (s, x) { return s + (Number(x.amount) || 0); }, 0);
     lines.push('');
@@ -409,7 +452,7 @@
   // ------------------------------------------------------- server bridge
   //
   // Every function below is a Postgres RPC function defined in
-  // supabase/schema.sql, where every pin check actually happens -- this
+  // supabase/schema.sql, where every pin check actually happens — this
   // bridge just maps the same call shape the rest of this file already
   // uses (gsRun('addDonation', groupId, pin, name, amount, ...)) onto
   // supabase-js's rpc(name, {named: params}) call shape.
@@ -488,6 +531,36 @@
   function saveCollapsed() {
     try { localStorage.setItem(LS_COLLAPSE_KEY, JSON.stringify(collapsedMap)); } catch (e) { /* ignore */ }
   }
+
+  // ------------------------------------------------------------- color theme
+
+  function loadPalette() {
+    var saved = 'mahovina';
+    try {
+      var s = localStorage.getItem(LS_PALETTE_KEY);
+      if (s && PALETTES.some(function (p) { return p.key === s; })) saved = s;
+    } catch (e) { /* ignore */ }
+    document.documentElement.setAttribute('data-palette', saved);
+    return saved;
+  }
+
+  function applyPalette(key) {
+    document.documentElement.setAttribute('data-palette', key);
+    try { localStorage.setItem(LS_PALETTE_KEY, key); } catch (e) { /* ignore */ }
+    renderPalettePicker();
+  }
+
+  function renderPalettePicker() {
+    var el = document.getElementById('palette-picker');
+    if (!el) return;
+    var active = document.documentElement.getAttribute('data-palette') || 'mahovina';
+    el.innerHTML = PALETTES.map(function (p) {
+      return '<button type="button" class="palette-dot" data-palette-key="' + p.key + '" ' +
+        'style="background:' + p.color + '" title="' + p.name + '" aria-label="' + p.name + '" ' +
+        'aria-pressed="' + (p.key === active ? 'true' : 'false') + '"></button>';
+    }).join('');
+  }
+
   function isCollapsed(groupId, key) { return !!(collapsedMap[groupId] && collapsedMap[groupId][key]); }
   function toggleSection(groupId, key) {
     if (!collapsedMap[groupId]) collapsedMap[groupId] = {};
@@ -576,7 +649,7 @@
     }
     render();
     if (res && res.error === 'wrong_pin') {
-      showToast('Pogrešan PIN -- osveži stranicu.', 'err');
+      showToast('Pogrešan PIN — osveži stranicu.', 'err');
     } else {
       showToast('Nešto nije uspelo. Pokušaj ponovo.', 'err');
     }
@@ -634,7 +707,7 @@
       '<header class="hero">' +
       '<p class="eyebrow">Kasica za vrtić</p>' +
       '<h1>Izaberi grupu</h1>' +
-      '<p class="card-hint home-sub">Svaka grupa ima svoju kasicu -- svoje donacije, troškove, planove i neplanirane troškove. Izaberi svoju grupu ili napravi novu ispod.</p>' +
+      '<p class="card-hint home-sub">Svaka grupa ima svoju kasicu — svoje donacije, troškove, planove i neplanirane troškove. Izaberi svoju grupu ili napravi novu ispod.</p>' +
       '</header>' +
       '<section class="card">' +
       '<div class="card-head"><h2>Grupe</h2><span class="count-badge">' + groups.length + '</span></div>' +
@@ -643,18 +716,18 @@
         '<div class="field"><label for="g-select">Grupa</label><select id="g-select" name="groupId">' + options + '</select></div>' +
         '<button type="submit">Otvori grupu</button>' +
         '</form>'
-      ) : '<p class="card-hint">Još nema nijedne grupe -- napravi prvu ispod.</p>') +
+      ) : '<p class="card-hint">Još nema nijedne grupe — napravi prvu ispod.</p>') +
       '</section>' +
       '<section class="card">' +
       '<div class="card-head"><h2>Napravi novu grupu</h2></div>' +
-      '<p class="card-hint">PIN je opcion. Ako ga postaviš, podaci te grupe se ne mogu ni videti ni menjati bez njega -- proveru radi server, ne samo stranica.</p>' +
+      '<p class="card-hint">PIN je opcion. Ako ga postaviš, podaci te grupe se ne mogu ni videti ni menjati bez njega — proveru radi server, ne samo stranica.</p>' +
       '<form class="add-form" data-form="create-group">' +
       '<div class="field"><label for="ng-name">Naziv grupe</label><input id="ng-name" name="name" type="text" required maxlength="60" placeholder="npr. Grupa Leptirići"></div>' +
       '<div class="field narrow"><label for="ng-pin">PIN (opciono)</label><input id="ng-pin" name="pin" type="text" maxlength="12" placeholder="npr. 2026"></div>' +
       '<button type="submit"' + (busy ? ' disabled' : '') + '>Napravi grupu</button>' +
       '</form>' +
       '</section>' +
-      '<footer class="foot">Kasica za vrtić -- deljeni budžet i evidencija troškova po grupama.</footer>' +
+      '<footer class="foot">Kasica za vrtić — deljeni budžet i evidencija troškova po grupama.</footer>' +
       '</div>';
   }
 
@@ -846,7 +919,7 @@
 
       ticketsSectionHtml +
 
-      '<footer class="foot">Kasica za vrtić -- deljeni budžet i evidencija troškova.</footer>' +
+      '<footer class="foot">Kasica za vrtić — deljeni budžet i evidencija troškova.</footer>' +
       '</div>';
   }
 
@@ -907,7 +980,7 @@
       var ta2 = document.querySelector('.copy-textarea');
       var ok2 = ta2 ? legacyCopy(ta2.value) : false;
       if (ok2) { copyModalText = null; showToast('Lista je kopirana.'); render(); }
-      else { if (ta2) { ta2.focus(); ta2.select(); } showToast('Kopiranje i dalje ne uspeva -- probajte ručno (Ctrl+C).', 'err'); }
+      else { if (ta2) { ta2.focus(); ta2.select(); } showToast('Kopiranje i dalje ne uspeva — probajte ručno (Ctrl+C).', 'err'); }
       return;
     }
     if (action === 'toggle-pin-manage') { managingPin = !managingPin; render(); return; }
@@ -1109,6 +1182,13 @@
   }
 
   function init() {
+    loadPalette();
+    renderPalettePicker();
+    document.getElementById('palette-picker').addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('[data-palette-key]') : null;
+      if (!btn) return;
+      applyPalette(btn.dataset.paletteKey);
+    });
     loadPins();
     loadCollapsed();
     currentGroupId = hashGroupId();
