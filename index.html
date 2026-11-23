@@ -132,7 +132,8 @@
     background:var(--line);color:var(--ink-soft);font-size:.7rem;font-weight:700;
     padding:.15rem .55rem;border-radius:999px;font-family:'JetBrains Mono',monospace;
   }
-  .card-hint{font-size:.82rem;color:var(--ink-soft);margin:-0.6rem 0 1.1rem;}
+  .card-hint{font-size:.82rem;color:var(--ink-soft);margin:0 0 1.1rem;}
+  .card-head + .card-hint{margin-top:-0.6rem;}
   .table-scroll{overflow-x:auto;border-radius:10px;}
   table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:480px;}
   th{
@@ -862,7 +863,6 @@
 
     var uniqueEventNames = [];
     group.tickets.forEach(function (tk) { if (tk.event && uniqueEventNames.indexOf(tk.event) === -1) uniqueEventNames.push(tk.event); });
-    var lastEventName = group.tickets.length ? group.tickets[group.tickets.length - 1].event : '';
     var ticketGroups = groupTicketsByEvent(group);
 
     var ticketsSectionHtml =
@@ -872,7 +872,7 @@
       '</div>' +
       (ticketsCollapsed ? '' : (
         '<form class="add-form" data-form="ticket">' +
-        '<div class="field"><label for="t-event">Naziv predstave / događaja</label><input id="t-event" name="event" type="text" required maxlength="80" placeholder="npr. Novogodišnja predstava" list="event-list" value="' + escapeHtml(lastEventName) + '"></div>' +
+        '<div class="field"><label for="t-event">Naziv predstave / događaja</label><input id="t-event" name="event" type="text" required maxlength="80" placeholder="npr. Novogodišnja predstava" list="event-list"></div>' +
         '<div class="field"><label for="t-name">Ime i prezime</label><input id="t-name" name="name" type="text" required maxlength="60" placeholder="npr. Marko Marković"></div>' +
         '<div class="field narrow"><label for="t-amount">Iznos (RSD)</label><input id="t-amount" name="amount" type="number" required min="1" step="1" placeholder="500"></div>' +
         '<div class="field narrow"><label for="t-date">Datum</label><input id="t-date" name="date" type="date" value="' + todayISO() + '"></div>' +
