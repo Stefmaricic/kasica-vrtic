@@ -828,13 +828,15 @@
             '<td class="num">' + fmtMoney(d.amount) + '</td>' +
             '<td class="row-actions"><button class="del-btn" data-action="del-donation" data-id="' + d.id + '" title="Obriši" aria-label="Obriši donaciju">✕</button></td></tr>';
         }).join('');
+        var monthOpen = isCollapsed(group.id, 'month-open:' + g.key);
         return '<div class="event-group">' +
           '<div class="event-group-head">' +
           '<h3>' + escapeHtml(g.label) + '</h3>' +
           '<span class="count-badge">' + g.items.length + '</span>' +
           '<span class="event-sum">' + fmtMoney(g.sum) + '</span>' +
+          '<button type="button" class="event-toggle-btn" data-action="toggle-donation-month" data-month="' + escapeHtml(g.key) + '" aria-expanded="' + monthOpen + '">' + (monthOpen ? 'Sakrij' : 'Prikaži') + '</button>' +
           '</div>' +
-          '<div class="table-scroll"><table><thead><tr><th>Ime</th><th>Datum</th><th>Napomena</th><th class="num">Iznos</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+          (monthOpen ? '<div class="table-scroll"><table><thead><tr><th>Ime</th><th>Datum</th><th>Napomena</th><th class="num">Iznos</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '') +
           '</div>';
       }).join('')
       : '<p class="card-hint">Još nema unetih donacija.</p>';
@@ -1051,6 +1053,10 @@
     }
     if (action === 'toggle-event-group') {
       if (currentGroup) toggleSection(currentGroup.id, 'event:' + actionEl.dataset.event);
+      return;
+    }
+    if (action === 'toggle-donation-month') {
+      if (currentGroup) toggleSection(currentGroup.id, 'month-open:' + actionEl.dataset.month);
       return;
     }
 
