@@ -47,22 +47,26 @@
     --line:#2C3A2B;
     --danger:#E17462;
   }
-  /* Color themes (accent only — neutrals stay the same). "mahovina" is the
-     default and needs no override since it matches the base :root values. */
-  :root[data-palette="reka"]{ --moss:#2E6DA3; --moss-deep:#20506F; }
-  :root[data-palette="jesen"]{ --moss:#AA431F; --moss-deep:#7A2E15; }
-  :root[data-palette="suncokret"]{ --moss:#7A5D10; --moss-deep:#5A4409; }
-  :root[data-palette="lavanda"]{ --moss:#6B4A9E; --moss-deep:#4C3474; }
+  /* Color themes: accent (--moss) plus a tinted page background (--paper),
+     so switching color visibly recolors the whole page, not just accents.
+     "mahovina" is the default and needs no override since it matches the
+     base :root values. --paper-raised (card backgrounds) stays white/near-
+     black for readability; only the page background behind/between cards
+     picks up the tint. */
+  :root[data-palette="reka"]{ --moss:#2E6DA3; --moss-deep:#20506F; --paper:#EAF2F8; }
+  :root[data-palette="jesen"]{ --moss:#AA431F; --moss-deep:#7A2E15; --paper:#FBEFEA; }
+  :root[data-palette="suncokret"]{ --moss:#7A5D10; --moss-deep:#5A4409; --paper:#FBF6E6; }
+  :root[data-palette="lavanda"]{ --moss:#6B4A9E; --moss-deep:#4C3474; --paper:#F4F0FB; }
   @media (prefers-color-scheme: dark){
-    :root[data-palette="reka"]:not([data-theme="light"]){ --moss:#6DB3DE; --moss-deep:#8FC9EC; }
-    :root[data-palette="jesen"]:not([data-theme="light"]){ --moss:#E2895F; --moss-deep:#EDA87C; }
-    :root[data-palette="suncokret"]:not([data-theme="light"]){ --moss:#D9B94E; --moss-deep:#EAD080; }
-    :root[data-palette="lavanda"]:not([data-theme="light"]){ --moss:#B79BE0; --moss-deep:#CBB6EB; }
+    :root[data-palette="reka"]:not([data-theme="light"]){ --moss:#6DB3DE; --moss-deep:#8FC9EC; --paper:#121A1F; --paper-raised:#16222A; }
+    :root[data-palette="jesen"]:not([data-theme="light"]){ --moss:#E2895F; --moss-deep:#EDA87C; --paper:#1C1512; --paper-raised:#241A15; }
+    :root[data-palette="suncokret"]:not([data-theme="light"]){ --moss:#D9B94E; --moss-deep:#EAD080; --paper:#1C1810; --paper-raised:#241F14; }
+    :root[data-palette="lavanda"]:not([data-theme="light"]){ --moss:#B79BE0; --moss-deep:#CBB6EB; --paper:#171420; --paper-raised:#1F1A2A; }
   }
-  :root[data-theme="dark"][data-palette="reka"]{ --moss:#6DB3DE; --moss-deep:#8FC9EC; }
-  :root[data-theme="dark"][data-palette="jesen"]{ --moss:#E2895F; --moss-deep:#EDA87C; }
-  :root[data-theme="dark"][data-palette="suncokret"]{ --moss:#D9B94E; --moss-deep:#EAD080; }
-  :root[data-theme="dark"][data-palette="lavanda"]{ --moss:#B79BE0; --moss-deep:#CBB6EB; }
+  :root[data-theme="dark"][data-palette="reka"]{ --moss:#6DB3DE; --moss-deep:#8FC9EC; --paper:#121A1F; --paper-raised:#16222A; }
+  :root[data-theme="dark"][data-palette="jesen"]{ --moss:#E2895F; --moss-deep:#EDA87C; --paper:#1C1512; --paper-raised:#241A15; }
+  :root[data-theme="dark"][data-palette="suncokret"]{ --moss:#D9B94E; --moss-deep:#EAD080; --paper:#1C1810; --paper-raised:#241F14; }
+  :root[data-theme="dark"][data-palette="lavanda"]{ --moss:#B79BE0; --moss-deep:#CBB6EB; --paper:#171420; --paper-raised:#1F1A2A; }
   *{box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
   body{
@@ -383,6 +387,34 @@
       return db.localeCompare(da);
     });
     return order.map(function (key) { return { event: key, items: map[key].slice().sort(byDateDesc) }; });
+  }
+
+  var MONTH_NAMES_SR = ['Januar', 'Februar', 'Mart', 'April', 'Maj', 'Jun', 'Jul', 'Avgust', 'Septembar', 'Oktobar', 'Novembar', 'Decembar'];
+
+  function monthYearLabel(iso) {
+    var parts = String(iso || '').split('-');
+    var y = parts[0], m = parseInt(parts[1], 10);
+    if (!y || !m || m < 1 || m > 12) return 'Bez datuma';
+    return MONTH_NAMES_SR[m - 1] + ' ' + y + '.';
+  }
+
+  function groupDonationsByMonth(group) {
+    var map = {}, order = [];
+    group.donations.forEach(function (d) {
+      var key = (d.date && /^\d{4}-\d{2}/.test(d.date)) ? d.date.slice(0, 7) : 'bez-datuma';
+      if (!map[key]) { map[key] = []; order.push(key); }
+      map[key].push(d);
+    });
+    order.sort(function (a, b) {
+      if (a === 'bez-datuma') return 1;
+      if (b === 'bez-datuma') return -1;
+      return b.localeCompare(a);
+    });
+    return order.map(function (key) {
+      var items = map[key].slice().sort(byDateDesc);
+      var sum = items.reduce(function (s, x) { return s + (Number(x.amount) || 0); }, 0);
+      return { key: key, label: key === 'bez-datuma' ? 'Bez datuma' : monthYearLabel(key + '-01'), items: items, sum: sum };
+    });
   }
 
   function buildEventListText(evGroup) {
@@ -788,13 +820,24 @@
     var plannedCollapsed = isCollapsed(group.id, 'planned');
     var ticketsCollapsed = isCollapsed(group.id, 'tickets');
 
-    var donationsRows = group.donations.length
-      ? group.donations.slice().sort(byDateDesc).map(function (d) {
-        return '<tr><td>' + escapeHtml(d.name) + '</td><td>' + fmtDate(d.date) + '</td><td class="muted">' + escapeHtml(d.note || '') + '</td>' +
-          '<td class="num">' + fmtMoney(d.amount) + '</td>' +
-          '<td class="row-actions"><button class="del-btn" data-action="del-donation" data-id="' + d.id + '" title="Obriši" aria-label="Obriši donaciju">✕</button></td></tr>';
+    var donationGroups = groupDonationsByMonth(group);
+    var donationGroupsHtml = donationGroups.length
+      ? donationGroups.map(function (g) {
+        var rows = g.items.map(function (d) {
+          return '<tr><td>' + escapeHtml(d.name) + '</td><td>' + fmtDate(d.date) + '</td><td class="muted">' + escapeHtml(d.note || '') + '</td>' +
+            '<td class="num">' + fmtMoney(d.amount) + '</td>' +
+            '<td class="row-actions"><button class="del-btn" data-action="del-donation" data-id="' + d.id + '" title="Obriši" aria-label="Obriši donaciju">✕</button></td></tr>';
+        }).join('');
+        return '<div class="event-group">' +
+          '<div class="event-group-head">' +
+          '<h3>' + escapeHtml(g.label) + '</h3>' +
+          '<span class="count-badge">' + g.items.length + '</span>' +
+          '<span class="event-sum">' + fmtMoney(g.sum) + '</span>' +
+          '</div>' +
+          '<div class="table-scroll"><table><thead><tr><th>Ime</th><th>Datum</th><th>Napomena</th><th class="num">Iznos</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+          '</div>';
       }).join('')
-      : '<tr class="empty-row"><td colspan="5">Još nema unetih donacija.</td></tr>';
+      : '<p class="card-hint">Još nema unetih donacija.</p>';
 
     var expenseRows = group.expenses.length
       ? group.expenses.slice().sort(byDateDesc).map(function (e) {
@@ -890,7 +933,7 @@
       '<button type="button" class="collapse-btn" data-action="toggle-section" data-section="donations" aria-expanded="' + (!donationsCollapsed) + '">' + (donationsCollapsed ? 'Prikaži' : 'Sakrij') + '</button>' +
       '</div>' +
       (donationsCollapsed ? '' : (
-        '<div class="table-scroll"><table><thead><tr><th>Ime</th><th>Datum</th><th>Napomena</th><th class="num">Iznos</th><th></th></tr></thead><tbody>' + donationsRows + '</tbody></table></div>' +
+        donationGroupsHtml +
         '<form class="add-form" data-form="donation">' +
         '<div class="field"><label for="d-name">Ime</label><input id="d-name" name="name" type="text" required maxlength="60" placeholder="npr. Porodica Jovanović"></div>' +
         '<div class="field narrow"><label for="d-amount">Iznos (RSD)</label><input id="d-amount" name="amount" type="number" required min="1" step="1" placeholder="2000"></div>' +
