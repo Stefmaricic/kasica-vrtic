@@ -871,6 +871,15 @@
       '<button type="button" class="collapse-btn" data-action="toggle-section" data-section="tickets" aria-expanded="' + (!ticketsCollapsed) + '">' + (ticketsCollapsed ? 'Prikaži' : 'Sakrij') + '</button>' +
       '</div>' +
       (ticketsCollapsed ? '' : (
+        '<form class="add-form" data-form="ticket">' +
+        '<div class="field"><label for="t-event">Naziv predstave / događaja</label><input id="t-event" name="event" type="text" required maxlength="80" placeholder="npr. Novogodišnja predstava" list="event-list" value="' + escapeHtml(lastEventName) + '"></div>' +
+        '<div class="field"><label for="t-name">Ime i prezime</label><input id="t-name" name="name" type="text" required maxlength="60" placeholder="npr. Marko Marković"></div>' +
+        '<div class="field narrow"><label for="t-amount">Iznos (RSD)</label><input id="t-amount" name="amount" type="number" required min="1" step="1" placeholder="500"></div>' +
+        '<div class="field narrow"><label for="t-date">Datum</label><input id="t-date" name="date" type="date" value="' + todayISO() + '"></div>' +
+        '<div class="field"><label for="t-comment">Komentar</label><input id="t-comment" name="comment" type="text" maxlength="120" placeholder="opciono"></div>' +
+        '<button type="submit"' + (busy ? ' disabled' : '') + '>Dodaj uplatu</button>' +
+        '</form>' +
+        '<datalist id="event-list">' + uniqueEventNames.map(function (n) { return '<option value="' + escapeHtml(n) + '">'; }).join('') + '</datalist>' +
         '<p class="card-hint">Ko je platio kartu za predstavu, grupisano po nazivu događaja. Klikni „Kopiraj listu“ da dobiješ spisak za slanje.</p>' +
         (ticketGroups.length ? ticketGroups.map(function (g) {
           var sum = g.items.reduce(function (s, x) { return s + (Number(x.amount) || 0); }, 0);
@@ -891,16 +900,7 @@
             '</div>' +
             (eventCollapsed ? '' : '<div class="table-scroll"><table><thead><tr><th>Ime i prezime</th><th>Datum</th><th>Komentar</th><th class="num">Iznos</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>') +
             '</div>';
-        }).join('') : '<p class="card-hint">Još nema unetih uplata za karte.</p>') +
-        '<form class="add-form" data-form="ticket">' +
-        '<div class="field"><label for="t-event">Naziv predstave / događaja</label><input id="t-event" name="event" type="text" required maxlength="80" placeholder="npr. Novogodišnja predstava" list="event-list" value="' + escapeHtml(lastEventName) + '"></div>' +
-        '<div class="field"><label for="t-name">Ime i prezime</label><input id="t-name" name="name" type="text" required maxlength="60" placeholder="npr. Marko Marković"></div>' +
-        '<div class="field narrow"><label for="t-amount">Iznos (RSD)</label><input id="t-amount" name="amount" type="number" required min="1" step="1" placeholder="500"></div>' +
-        '<div class="field narrow"><label for="t-date">Datum</label><input id="t-date" name="date" type="date" value="' + todayISO() + '"></div>' +
-        '<div class="field"><label for="t-comment">Komentar</label><input id="t-comment" name="comment" type="text" maxlength="120" placeholder="opciono"></div>' +
-        '<button type="submit"' + (busy ? ' disabled' : '') + '>Dodaj uplatu</button>' +
-        '</form>' +
-        '<datalist id="event-list">' + uniqueEventNames.map(function (n) { return '<option value="' + escapeHtml(n) + '">'; }).join('') + '</datalist>'
+        }).join('') : '<p class="card-hint">Još nema unetih uplata za karte.</p>')
       )) +
       '</section>';
 
@@ -935,14 +935,14 @@
       '<button type="button" class="collapse-btn" data-action="toggle-section" data-section="donations" aria-expanded="' + (!donationsCollapsed) + '">' + (donationsCollapsed ? 'Prikaži' : 'Sakrij') + '</button>' +
       '</div>' +
       (donationsCollapsed ? '' : (
-        donationGroupsHtml +
         '<form class="add-form" data-form="donation">' +
         '<div class="field"><label for="d-name">Ime</label><input id="d-name" name="name" type="text" required maxlength="60" placeholder="npr. Porodica Jovanović"></div>' +
         '<div class="field narrow"><label for="d-amount">Iznos (RSD)</label><input id="d-amount" name="amount" type="number" required min="1" step="1" placeholder="2000"></div>' +
         '<div class="field narrow"><label for="d-date">Datum</label><input id="d-date" name="date" type="date" value="' + todayISO() + '"></div>' +
         '<div class="field"><label for="d-note">Napomena</label><input id="d-note" name="note" type="text" maxlength="120" placeholder="opciono"></div>' +
         '<button type="submit"' + (busy ? ' disabled' : '') + '>Dodaj donaciju</button>' +
-        '</form>'
+        '</form>' +
+        donationGroupsHtml
       )) +
       '</section>' +
 
@@ -951,7 +951,6 @@
       '<button type="button" class="collapse-btn" data-action="toggle-section" data-section="expenses" aria-expanded="' + (!expensesCollapsed) + '">' + (expensesCollapsed ? 'Prikaži' : 'Sakrij') + '</button>' +
       '</div>' +
       (expensesCollapsed ? '' : (
-        '<div class="table-scroll"><table><thead><tr><th>Datum</th><th>Opis</th><th>Kategorija</th><th>Račun</th><th class="num">Iznos</th><th></th></tr></thead><tbody>' + expenseRows + '</tbody></table></div>' +
         '<form class="add-form" data-form="expense">' +
         '<div class="field"><label for="e-desc">Opis</label><input id="e-desc" name="desc" type="text" required maxlength="80" placeholder="npr. Vodene boje"></div>' +
         '<div class="field narrow"><label for="e-amount">Iznos (RSD)</label><input id="e-amount" name="amount" type="number" required min="1" step="1" placeholder="1500"></div>' +
@@ -959,7 +958,8 @@
         '<div class="field narrow"><label for="e-cat">Kategorija</label><input id="e-cat" name="category" type="text" maxlength="40" placeholder="opciono"></div>' +
         '<div class="field file-field"><label for="e-file">Slika računa</label><div class="file-row"><button type="button" class="file-btn" data-action="pick-file">Izaberi sliku</button><span class="file-name"></span><input id="e-file" name="receiptFile" type="file" accept="image/*"></div></div>' +
         '<button type="submit"' + (busy ? ' disabled' : '') + '>Dodaj trošak</button>' +
-        '</form>'
+        '</form>' +
+        '<div class="table-scroll"><table><thead><tr><th>Datum</th><th>Opis</th><th>Kategorija</th><th>Račun</th><th class="num">Iznos</th><th></th></tr></thead><tbody>' + expenseRows + '</tbody></table></div>'
       )) +
       '</section>' +
 
@@ -968,15 +968,15 @@
       '<button type="button" class="collapse-btn" data-action="toggle-section" data-section="planned" aria-expanded="' + (!plannedCollapsed) + '">' + (plannedCollapsed ? 'Prikaži' : 'Sakrij') + '</button>' +
       '</div>' +
       (plannedCollapsed ? '' : (
-        '<p class="card-hint">Stvari koje očekujete da ćete platiti, a još nisu plaćene. Kad se plate, klikni „Realizuj“ da se prebace u troškove.</p>' +
-        '<div class="table-scroll"><table><thead><tr><th>Opis</th><th>Kada</th><th>Napomena</th><th class="num">Procena</th><th></th></tr></thead><tbody>' + plannedRows + '</tbody></table></div>' +
         '<form class="add-form" data-form="planned">' +
         '<div class="field"><label for="p-desc">Opis</label><input id="p-desc" name="desc" type="text" required maxlength="80" placeholder="npr. Novogodišnja predstava"></div>' +
         '<div class="field narrow"><label for="p-amount">Procena (RSD)</label><input id="p-amount" name="amount" type="number" required min="1" step="1" placeholder="5000"></div>' +
         '<div class="field narrow"><label for="p-when">Kada</label><input id="p-when" name="when" type="text" maxlength="40" placeholder="npr. decembar"></div>' +
         '<div class="field"><label for="p-note">Napomena</label><input id="p-note" name="note" type="text" maxlength="120" placeholder="opciono"></div>' +
         '<button type="submit"' + (busy ? ' disabled' : '') + '>Dodaj plan</button>' +
-        '</form>'
+        '</form>' +
+        '<p class="card-hint">Stvari koje očekujete da ćete platiti, a još nisu plaćene. Kad se plate, klikni „Realizuj“ da se prebace u troškove.</p>' +
+        '<div class="table-scroll"><table><thead><tr><th>Opis</th><th>Kada</th><th>Napomena</th><th class="num">Procena</th><th></th></tr></thead><tbody>' + plannedRows + '</tbody></table></div>'
       )) +
       '</section>' +
 
